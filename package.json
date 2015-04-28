@@ -1,0 +1,11 @@
+{
+  "name"         : "bbc-food-pebble-service",
+  "version"      : "0.0.1",
+  "description"  : "Scrape BBC Food in season recipes",
+  "main"         : "app.js",
+  "author"       : "Jacob Clark",
+  "dependencies" : {
+    "q"          : "latest",
+    "cheerio"    : "latest"
+  }
+}
