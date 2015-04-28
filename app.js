@@ -13,6 +13,7 @@ function makeRequest(url){
         });
 
         res.on('end', function () {
+            console.log(url, str)
             deferred.resolve(str);
         });
     }).on('error', function(e) {
@@ -35,20 +36,37 @@ function parseData(){
         return Math.round(d/15);
 
     }).then(function(pages){
-        makeRequest('http://www.bbc.co.uk/food/recipes/search?page=' + Math.floor((Math.random() * pages) + 1) + '&inSeason=true&sortBy=lastModified').then(function(data){
-
+        return makeRequest('http://www.bbc.co.uk/food/recipes/search?page=' + Math.floor((Math.random() * pages) + 1) + '&inSeason=true&sortBy=lastModified').then(function(data){
             var $       = cheerio.load(data),
-                json    = [];
+                json    = [],
+                rand    = Math.floor((Math.random() * 14) + 1);
 
             var d = $('#article-list ul li h3 a').each(function(i, link){
-                json.push({
-                    title   : $(link).text(),
-                    url     : 'http://bbc.co.uk' + $(link)[0].attribs.href
-                });
+
+                // this is making me ill, but I don't have time to figure out how to get cheerio to return me an array...
+                if(i == rand){
+                    var smry = {
+                        title   : $(link).text(),
+                        url     : 'http://bbc.co.uk' + $(link)[0].attribs.href
+                    }
+
+                    json.push({
+                        summary : smry
+                    });
+                }
             });
 
-            deferred.resolve(json);
+            return json
         });
+    }).then(function(json){
+        console.log()
+
+        makeRequest(json[0].summary.url).then(function(data){
+            console.log(data);
+        });
+
+
+        return deferred.resolve(json);
     });
 
     return deferred.promise;
@@ -57,14 +75,15 @@ function parseData(){
 var server = http.createServer().listen(9111, '0.0.0.0');
 
 server.on('request', function(req, res) {
-    parseData().then(function(data){
-        var _this = this;
+    if(req.url ==='/'){
+        parseData().then(function(data){
+            var _this = this;
 
-        res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Type', 'application/json');
 
-        if(req.url ==='/'){
-            res.end( JSON.stringify( data[Math.floor((Math.random() * 14) + 1)] ));
-        }
-    });
+            
+                res.end( JSON.stringify( data ));
+        });
+    }
 });
 
