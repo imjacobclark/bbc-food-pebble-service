@@ -13,7 +13,6 @@ function makeRequest(url){
         });
 
         res.on('end', function () {
-            console.log(url, str)
             deferred.resolve(str);
         });
     }).on('error', function(e) {
@@ -47,7 +46,7 @@ function parseData(){
                 if(i == rand){
                     var smry = {
                         title   : $(link).text(),
-                        url     : 'http://bbc.co.uk' + $(link)[0].attribs.href
+                        url     : 'http://www.bbc.co.uk' + $(link)[0].attribs.href
                     }
 
                     json.push({
@@ -59,14 +58,20 @@ function parseData(){
             return json
         });
     }).then(function(json){
-        console.log()
-
         makeRequest(json[0].summary.url).then(function(data){
-            console.log(data);
+            var $               =   cheerio.load(data),
+                steps           =   {};
+
+            $("#preparation li p").each(function(i, step){
+                i = i.toString();
+                steps[i] = $(step).html();
+            });
+        
+            json.push({steps: steps})
+
+            return deferred.resolve(json);
         });
 
-
-        return deferred.resolve(json);
     });
 
     return deferred.promise;
@@ -80,8 +85,6 @@ server.on('request', function(req, res) {
             var _this = this;
 
             res.setHeader('Content-Type', 'application/json');
-
-            
                 res.end( JSON.stringify( data ));
         });
     }
