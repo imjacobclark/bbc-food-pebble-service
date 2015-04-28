@@ -4,6 +4,9 @@
   "description"  : "Scrape BBC Food in season recipes",
   "main"         : "app.js",
   "author"       : "Jacob Clark",
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies" : {
     "q"          : "latest",
     "cheerio"    : "latest"

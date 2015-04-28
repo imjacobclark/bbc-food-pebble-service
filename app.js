@@ -43,7 +43,7 @@ function parseData(){
             var d = $('#article-list ul li h3 a').each(function(i, link){
                 json.push({
                     title   : $(link).text(),
-                    url     : $(link)[0].attribs.href
+                    url     : 'http://bbc.co.uk' + $(link)[0].attribs.href
                 });
             });
 
@@ -54,6 +54,17 @@ function parseData(){
     return deferred.promise;
 };
 
-parseData().then(function(data){
-    console.log(data[Math.floor((Math.random() * 10) + 1)]);
+var server = http.createServer().listen(9111, '0.0.0.0');
+
+server.on('request', function(req, res) {
+    parseData().then(function(data){
+        var _this = this;
+
+        res.setHeader('Content-Type', 'application/json');
+
+        if(req.url ==='/'){
+            res.end( JSON.stringify( data[Math.floor((Math.random() * 14) + 1)] ));
+        }
+    });
 });
+
